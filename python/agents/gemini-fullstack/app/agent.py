@@ -23,7 +23,7 @@ from google.adk.agents.callback_context import CallbackContext
 from google.adk.agents.invocation_context import InvocationContext
 from google.adk.events import Event, EventActions
 from google.adk.planners import BuiltInPlanner
-from google.adk.tools import google_search
+from google.adk.tools import google_search, url_context
 from google.adk.tools.agent_tool import AgentTool
 from google.genai import types as genai_types
 from pydantic import BaseModel, Field
@@ -328,10 +328,11 @@ enhanced_search_executor = LlmAgent(
 
     1.  Review the 'research_evaluation' state key to understand the feedback and required fixes.
     2.  Execute EVERY query listed in 'follow_up_queries' using the 'google_search' tool.
-    3.  Synthesize the new findings and COMBINE them with the existing information in 'section_research_findings'.
-    4.  Your output MUST be the new, complete, and improved set of research findings.
+    3.  When `google_search` tool results return a pdf or an image, use `url_context` tool to gather more context from the linked document. This tool uses an llm to extract the content.
+    4.  Synthesize the new findings and COMBINE them with the existing information in 'section_research_findings'.
+    5.  Your output MUST be the new, complete, and improved set of research findings.
     """,
-    tools=[google_search],
+    tools=[google_search, url_context],
     output_key="section_research_findings",
     after_agent_callback=collect_research_sources_callback,
 )
